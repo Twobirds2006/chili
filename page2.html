@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>表格页面二</title>
+    <!-- DataTables CDN -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+    table.dataTable tbody tr.even {
+    background-color: #ffffff;
+    }
+    table.dataTable tbody tr.odd {
+    background-color: #cdf0ca;
+    }
+    table.dataTable tbody tr:hover {
+    background-color: #94d4e4 !important;
+    }
+    table.dataTable th, table.dataTable td {
+    padding: 2px 5px;
+    font-size:16px;
+    line-height: 1.1;
+    }
+    table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { min-width: 50px; }
+    table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { min-width: 60px; }
+    table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { min-width: 70px; }
+    table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { min-width: 50px; }
+    table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { min-width: 70px; }
+    table.dataTable th:nth-child(6), table.dataTable td:nth-child(6) { min-width: 70px; }
+    table.dataTable th:nth-child(7), table.dataTable td:nth-child(7) { min-width: 70px; }
+    table.dataTable th:nth-child(8), table.dataTable td:nth-child(8) { min-width: 50px; }
+    table.dataTable th:nth-child(9), table.dataTable td:nth-child(9) { min-width: 70px; }
+
+    .sidebar-box {
+        line-height: 1.45;
+        font-size: 14px;
+    }
+    .sidebar-title {
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+    .sidebar-section {
+        margin-bottom: 12px;
+    }
+    .fold-content {
+        margin-top:6px;
+        color:#444;
+        display:none;
+    }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+<script>
+// ========== 配置区，只改这里 ==========
+const CONFIG = {
+    jsonPath: "data2.json",
+
+    // 显示列：表头 + 表格都按这个来
+    columns: ["股票代码", "股票名称", "行业", "当前PE", "PE_1y", "PE_3y", "PE_5y", "总市值", "日期"],
+
+    // 隐藏列：加载但不显示，只参与顶部搜索框搜索
+    // 注意：字段名必须和 data2.json 里的 key 一字不差，且 Python 的 columns_keep 也要包含它
+    hiddenColumns: ["拼音"],
+
+    pageLength: 25,
+    url1: "page1.html",
+    url2: "page2.html",
+    url3: "page3.html",
+    descText: "A股，近年PE分位",
+    currentPage: 2, // 当前页面编号：1=表一，2=表二，3=表三
+    mailPart1: "twobirds123",
+    mailPart2: "qq.com"
+};
+// ======================================
+</script>
+
+<div style="margin:16px; display:flex; gap:20px;">
+    <!-- 左侧侧边栏，固定宽度 200px -->
+    <div style="width:200px; flex-shrink:0;" class="sidebar-box">
+        <div class="sidebar-section">
+            <div class="sidebar-title">每周更新</div>
+            <div>更新时间：<span id="side-update">未知</span></div>
+        </div>
+        <div style="height:20px;"></div>
+        <div class="sidebar-section">
+            <button id="btn-col">字段释义</button>
+            <div class="fold-content" id="col-content">
+                <div>当前PE：最新市盈率</div>
+                <div>PE_1y：近一年 PE 分位</div>
+                <div>PE_3y：近三年 PE 分位</div>
+                <div>PE_5y：近五年 PE 分位</div>
+                <div>总市值：最新总市值</div>
+                <div>日期：截面日期</div>
+                <div>(所有PE：使用扣非ttm计算)</div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <button id="btn-tip">样本说明</button>
+            <div class="fold-content" id="tip-content">
+                数据样本：沪A、深A，<br>(不含科创板)；
+                <p>剔除上市不足三年；<br>剔除停牌、ST股；<br>
+                剔除PE为负，或数据缺失。</p>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <button id="btn-mail">联系我们</button>
+            <div class="fold-content" id="mail-content"></div>
+        </div>
+
+        <div class="sidebar-section">
+            <button id="btn-disclaimer">免责提示</button>
+            <div class="fold-content" id="disclaimer-content">
+                <p>本数据为个人研究整理，<br>仅限参考<br>不构成任何投资建议。</p>
+                <p>数据内容可能有错误、遗漏；<br>重要数据，需自行多方验证。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧表格区域 -->
+    <div style="flex:1;">
+        <div style="margin-bottom:12px;">
+            <p id="desc"></p>
+        </div>
+        <!-- 页面切换按钮，靠右，紧贴上方 -->
+        <div style="text-align:right; margin-bottom:8px;">
+            <button id="btn-page1" onclick="location.href=CONFIG.url1" style="margin:0 4px;">PB分位</button>
+            <button id="btn-page2" onclick="location.href=CONFIG.url2" style="margin:0 4px;">PE分位</button>
+            <button id="btn-page3" onclick="location.href=CONFIG.url3" style="margin:0 4px;">近期涨跌幅</button>
+        </div>
+
+        <table id="myTable" class="display" style="width:100%">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+$(function(){
+    // 邮箱拼接
+    const fullMail = CONFIG.mailPart1 + "@" + CONFIG.mailPart2;
+    $("#mail-content").html(`数据交流，咨询：<br>${fullMail}`);
+
+    // 当前页面按钮置灰禁用
+    if(CONFIG.currentPage === 1){
+        $("#btn-page1").prop("disabled",true).css("opacity","0.5");
+    }else if(CONFIG.currentPage === 2){
+        $("#btn-page2").prop("disabled",true).css("opacity","0.5");
+    }else if(CONFIG.currentPage === 3){
+        $("#btn-page3").prop("disabled",true).css("opacity","0.5");
+    }
+
+    // 折叠切换
+    $("#btn-col").on("click", function(){ $("#col-content").toggle(); })
+    $("#btn-tip").on("click", function(){ $("#tip-content").toggle(); })
+    $("#btn-mail").on("click", function(){ $("#mail-content").toggle(); })
+    $("#btn-disclaimer").on("click", function(){ $("#disclaimer-content").toggle(); })
+
+    // 渲染顶部说明
+    $("#desc").text(CONFIG.descText);
+
+    // 全部字段 = 显示列 + 隐藏列
+    const allColumns = [...CONFIG.columns, ...CONFIG.hiddenColumns];
+
+    // 生成表头：显示列正常，隐藏列加 display:none（列数必须和数据列数一致）
+    let headHtml = "";
+    CONFIG.columns.forEach(col=>{
+        headHtml += `<th>${col}</th>`;
+    });
+    CONFIG.hiddenColumns.forEach(col=>{
+        headHtml += `<th style="display:none">${col}</th>`;
+    });
+    $("#myTable thead").html(`<tr>${headHtml}</tr>`);
+
+    // 加载json，初始化DataTables
+    $.getJSON(CONFIG.jsonPath, function(data){
+        if(data && data.length>0){
+            $("#side-update").text(data[0]["日期"]);
+        }else{
+            $("#side-update").text("暂无数据");
+        }
+
+        // 按“显示列 + 隐藏列”的顺序取字段
+        const tableData = data.map(row=>{
+            return allColumns.map(key=> row[key])
+        })
+
+        // 隐藏列的列索引：从 CONFIG.columns.length 开始
+        const hiddenTargets = CONFIG.hiddenColumns.map((_, i)=> CONFIG.columns.length + i);
+
+        $('#myTable').DataTable({
+            data: tableData,
+            pageLength: CONFIG.pageLength,
+            ordering: true,
+            order: [],
+            columnDefs: [
+                {
+                    targets: hiddenTargets,
+                    visible: false,     // 不显示
+                    searchable: true    // 但参与搜索（默认就是 true，写出来强调）
+                }
+            ],
+            language: {
+                "sProcessing": "处理中...",
+                "sLengthMenu": "每页 _MENU_ 条",
+                "sZeroRecords": "没有匹配结果",
+                "sInfo": "显示第 _START_ 至 _END_ 条，共 _TOTAL_ 条",
+                "sInfoEmpty": "显示 0 至 0 条，共 0 条",
+                "sInfoFiltered": "(由 _MAX_ 条过滤)",
+                "sSearch": "搜索：",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            }
+        });
+    }).fail(function(){
+        $("#side-update").text("未知");
+        alert("❌ JSON 加载失败，请检查 json 路径。");
+    });
+})
+</script>
+</body>
+</html>
