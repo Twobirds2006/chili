@@ -57,7 +57,6 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 </head>
 <body>
-<h1 style="position:absolute;opacity:0;pointer-events:none;">周期股 PB / PE 估值分位跟踪表</h1>
 <script>
 // ========== 配置区，只改这里 ==========
 const CONFIG = {
@@ -74,7 +73,6 @@ const CONFIG = {
     url1: "page1.html",
     url2: "page2.html",
     url3: "page3.html",
-    descText: "A股，近年PB分位",
     currentPage: 1, // 当前页面编号：1=表一，2=表二，3=表三
     mailPart1: "twobirds123",
     mailPart2: "qq.com"
@@ -127,10 +125,11 @@ const CONFIG = {
 
     <!-- 右侧表格区域 -->
     <div style="flex:1;">
-        <div style="margin-bottom:12px;">
-            <p id="desc"></p>
+        <!-- 标题：右上角，和左侧每周更新同一水平线 -->
+        <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:28px;">
+            <h1 style="font-size:16px; font-weight:500; margin:0; color:#444;">A股 PB / PE 估值分位跟踪表</h1>
         </div>
-        <!-- 页面切换按钮，靠右，紧贴上方 -->
+        <!-- 页面切换按钮，靠右，紧贴上方标题 -->
         <div style="text-align:right; margin-bottom:8px;">
             <button id="btn-page1" onclick="location.href=CONFIG.url1" style="margin:0 4px;">PB分位</button>
             <button id="btn-page2" onclick="location.href=CONFIG.url2" style="margin:0 4px;">PE分位</button>
@@ -164,9 +163,6 @@ $(function(){
     $("#btn-tip").on("click", function(){ $("#tip-content").toggle(); })
     $("#btn-mail").on("click", function(){ $("#mail-content").toggle(); })
     $("#btn-disclaimer").on("click", function(){ $("#disclaimer-content").toggle(); })
-
-    // 渲染顶部说明
-    $("#desc").text(CONFIG.descText);
 
     // 全部字段 = 显示列 + 隐藏列
     const allColumns = [...CONFIG.columns, ...CONFIG.hiddenColumns];
