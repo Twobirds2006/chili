@@ -2,8 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="msvalidate.01" content="93868BD7F0786750ACBF11F079FBB90F" />
-    <title>A股PB分位</title>
+    <title>PB PE估值分位跟踪 | twobirds2006</title>
+    <meta name="description" content="周期股PB、PE历史分位计算跟踪，查看个股估值所处历史区间，用于基本面观察和估值复盘。">
+    <meta name="keywords" content="PB分位,PE分位,周期股,估值分位,历史估值，涨跌幅，免费查看">
     <link rel="icon" type="image/gif" href="0316.gif">
     <!-- DataTables CDN -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -54,6 +57,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 </head>
 <body>
+<h1 style="position:absolute;opacity:0;pointer-events:none;">周期股 PB / PE 估值分位跟踪表</h1>
 <script>
 // ========== 配置区，只改这里 ==========
 const CONFIG = {
@@ -79,7 +83,7 @@ const CONFIG = {
 </script>
 
 <div style="margin:16px; display:flex; gap:20px;">
-    <!-- 左侧侧边栏，固定宽度 240px -->
+    <!-- 左侧侧边栏，固定宽度 200px -->
     <div style="width:200px; flex-shrink:0;" class="sidebar-box">
         <div class="sidebar-section">
             <div class="sidebar-title">每周更新</div>
@@ -144,7 +148,7 @@ const CONFIG = {
 $(function(){
     // 邮箱拼接
     const fullMail = CONFIG.mailPart1 + "@" + CONFIG.mailPart2;
-    $("#mail-content").html(`数据交流，咨询：<br>${fullMail}`);
+    $("#mail-content").html(`大家想看什么数据，<br>${fullMail}`);
 
     // 当前页面按钮置灰禁用
     if(CONFIG.currentPage === 1){
